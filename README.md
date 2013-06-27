@@ -15,4 +15,9 @@ An NSControl subclass which provides a spreadsheet-style table grid, forked from
 * Locking columns/rows/cells
 * and more...
 
+##Screenshots:
+![alt tag](https://raw.github.com/mikecsh/mbtablegrid/master/MBTableGrid%20Screenshot.png)
+
+
 Contributions very welcome.
+
