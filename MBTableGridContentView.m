@@ -134,8 +134,13 @@
 			
 			// Only draw the cell if we need to
 			if ([self needsToDrawRect:cellFrame]) {
+                
+                NSColor *backgroundColor = [[self tableGrid] _backgroundColorForColumn:column row:row] ?: [NSColor whiteColor];
+                
+                
 				[_cell setObjectValue:[[self tableGrid] _objectValueForColumn:column row:row]];
-				[_cell drawWithFrame:cellFrame inView:self];
+				[_cell drawWithFrame:cellFrame inView:self withBackgroundColor:backgroundColor];// Draw background color
+                
 			}
 			row++;
 		}
@@ -163,7 +168,7 @@
 		
 		NSColor *selectionColor = [NSColor alternateSelectedControlColor];
 		
-		// If the view is not the first responder, the use a gray selection color
+		// If the view is not the first responder, then use a gray selection color
 		NSResponder *firstResponder = [[self window] firstResponder];
 		if (![[firstResponder class] isSubclassOfClass:[NSView class]] || ![(NSView *)firstResponder isDescendantOf:[self tableGrid]] || ![[self window] isKeyWindow]) {
 			selectionColor = [[selectionColor colorUsingColorSpaceName:NSDeviceWhiteColorSpace] colorUsingColorSpaceName:NSDeviceRGBColorSpace];

@@ -568,6 +568,19 @@ typedef enum {
 @optional
 
 /**
+ * @brief		Returns the background color for the specified column and row.
+ *
+ * @param		aTableGrid		The table grid that sent the message.
+ * @param		columnIndex		A column in \c aTableGrid.
+ * @param		rowIndex		A row in \c aTableGrid.
+ *
+ * @return		The background color for the specified cell of the view.
+ */
+- (NSColor *)tableGrid:(MBTableGrid *)aTableGrid backgroundColorForColumn:(NSUInteger)columnIndex row:(NSUInteger)rowIndex;
+
+@optional
+
+/**
  * @brief		Sets the sata object for an item in a given row in a given column.
  *
  * @details		Although this method is optional, it must be implemented in order

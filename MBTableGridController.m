@@ -114,7 +114,14 @@
 	}
 	
 	[column replaceObjectAtIndex:rowIndex withObject:anObject];
-	
+}
+
+-(NSColor *)tableGrid:(MBTableGrid *)aTableGrid backgroundColorForColumn:(NSUInteger)columnIndex row:(NSUInteger)rowIndex
+{
+    if (rowIndex % 2)
+        return [NSColor colorWithDeviceRed:1.0f green:0.5f blue:0.5f alpha:0.5f];
+    else
+        return nil;
 }
 
 #pragma mark Dragging

@@ -31,7 +31,9 @@
  *				cells.
  */
 @interface MBTableGridCell : NSTextFieldCell {
-
+    
 }
+
+- (void)drawWithFrame:(NSRect)cellFrame inView:(NSView *)controlView withBackgroundColor:(NSColor *)backgroundColor;
 
 @end
