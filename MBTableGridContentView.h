@@ -43,6 +43,8 @@
 	NSInteger editedRow;
 	
 	NSImage *cursorImage;
+	NSImage *cursorExtendSelectionImage;
+    NSRect grabHandleRect;
 	
 	NSInteger dropColumn;
 	NSInteger dropRow;

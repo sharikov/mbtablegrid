@@ -7,7 +7,9 @@ An NSControl subclass which provides a spreadsheet-style table grid, forked from
 * Display very large numbers of rows/columns with good performance
 * Custom background colour per cell
 * Display grab handle in corner of selection
-
+* Extend selection with shift key
+* Autoscroll
+* Drag to re-arrange rows or columns
 
 ##Working on:
 * Resizable columns and rows

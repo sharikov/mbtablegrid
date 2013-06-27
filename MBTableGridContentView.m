@@ -45,6 +45,8 @@
 @interface MBTableGridContentView (Cursors)
 - (NSCursor *)_cellSelectionCursor;
 - (NSImage *)_cellSelectionCursorImage;
+- (NSCursor *)_cellExtendSelectionCursor;
+- (NSImage *)_cellExtendSelectionCursorImage;
 @end
 
 @interface MBTableGridContentView (DragAndDrop)
@@ -70,9 +72,13 @@
 		
 		dropColumn = NSNotFound;
 		dropRow = NSNotFound;
+        
+        
+        grabHandleRect = NSRectFromCGRect(CGRectZero);
 		
 		// Cache the cursor image
 		cursorImage = [[self _cellSelectionCursorImage] retain];
+        cursorExtendSelectionImage = [[self _cellExtendSelectionCursorImage] retain];
 		
 		isDraggingColumnOrRow = NO;
 		
@@ -178,8 +184,8 @@
         {
             // Draw grab handle
             [selectionColor set];
-            NSRect grabHandle = NSMakeRect(NSMaxX(selectionInsetRect) - kGRAB_HANDLE_HALF_SIDE_LENGTH, NSMaxY(selectionInsetRect) - kGRAB_HANDLE_HALF_SIDE_LENGTH, kGRAB_HANDLE_SIDE_LENGTH, kGRAB_HANDLE_SIDE_LENGTH);
-            NSRectFill(grabHandle);
+            grabHandleRect = NSMakeRect(NSMaxX(selectionInsetRect) - kGRAB_HANDLE_HALF_SIDE_LENGTH, NSMaxY(selectionInsetRect) - kGRAB_HANDLE_HALF_SIDE_LENGTH, kGRAB_HANDLE_SIDE_LENGTH, kGRAB_HANDLE_SIDE_LENGTH);
+            NSRectFill(grabHandleRect);
         }
 		
 		[selectionColor set];
@@ -188,6 +194,9 @@
         
         [[selectionColor colorWithAlphaComponent:0.2f] set];
         [selectionPath fill];
+        
+        // Inavlidate cursors so we use the correct cursor for the selection in the right place
+        [[self window] invalidateCursorRectsForView:self];
 	}
 	
 	// Draw the column drop indicator
@@ -384,8 +393,10 @@
 
 - (void)resetCursorRects
 {
+    NSLog(@"%s - %f %f %f %f", __func__, grabHandleRect.origin.x, grabHandleRect.origin.y, grabHandleRect.size.width, grabHandleRect.size.height);
 	// The main cursor should be the cell selection cursor
 	[self addCursorRect:[self visibleRect] cursor:[self _cellSelectionCursor]];
+    [self addCursorRect:grabHandleRect cursor:[self _cellExtendSelectionCursor]];
 }
 
 #pragma mark -
@@ -572,7 +583,7 @@
 
 - (NSCursor *)_cellSelectionCursor
 {
-	NSCursor *cursor = [[NSCursor alloc] initWithImage:cursorImage hotSpot:NSMakePoint(8, 8)];	
+	NSCursor *cursor = [[NSCursor alloc] initWithImage:cursorImage hotSpot:NSMakePoint(8, 8)];
 	return [cursor autorelease];
 }
 
@@ -615,6 +626,59 @@
 	NSRectFill(verticalOuter);
 	
 	[[NSColor whiteColor] set];
+	NSRectFill(horizontalInner);
+	NSRectFill(verticalInner);
+	
+	[image unlockFocus];
+	
+	return [image autorelease];
+}
+
+- (NSCursor *)_cellExtendSelectionCursor
+{
+	NSCursor *cursor = [[NSCursor alloc] initWithImage:cursorExtendSelectionImage hotSpot:NSMakePoint(8, 8)];
+	return [cursor autorelease];
+}
+
+/**
+ * @warning		This method is not as efficient as it could be, but
+ *				it should only be called once, at initialization.
+ *				TODO: Make it faster
+ */
+- (NSImage *)_cellExtendSelectionCursorImage
+{
+	NSImage *image = [[NSImage alloc] initWithSize:NSMakeSize(20, 20)];
+	[image setFlipped:YES];
+	[image lockFocus];
+	
+	NSRect horizontalInner = NSMakeRect(7.0, 2.0, 2.0, 12.0);
+	NSRect verticalInner = NSMakeRect(2.0, 7.0, 12.0, 2.0);
+	
+	NSRect horizontalOuter = NSInsetRect(horizontalInner, -1.0, -1.0);
+	NSRect verticalOuter = NSInsetRect(verticalInner, -1.0, -1.0);
+	
+	// Set the shadow
+	NSShadow *shadow = [[NSShadow alloc] init];
+	[shadow setShadowColor:[NSColor colorWithDeviceWhite:0.0 alpha:0.8]];
+	[shadow setShadowBlurRadius:2.0];
+	[shadow setShadowOffset:NSMakeSize(0, -1.0)];
+	
+	[[NSGraphicsContext currentContext] saveGraphicsState];
+	
+	[shadow set];
+	
+	[[NSColor blackColor] set];
+	NSRectFill(horizontalOuter);
+	NSRectFill(verticalOuter);
+	
+	[[NSGraphicsContext currentContext] restoreGraphicsState];
+	[shadow release];
+	
+	// Fill them again to compensate for the shadows
+	NSRectFill(horizontalOuter);
+	NSRectFill(verticalOuter);
+	
+	[[NSColor blackColor] set];
 	NSRectFill(horizontalInner);
 	NSRectFill(verticalInner);
 	
