@@ -32,7 +32,7 @@
 	NSMutableArray *columns;
 }
 
-- (void)addColumn:(id)sender;
-- (void)addRow:(id)sender;
+- (IBAction)addColumn:(id)sender;
+- (IBAction)addRow:(id)sender;
 
 @end

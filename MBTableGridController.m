@@ -187,7 +187,7 @@
 #pragma mark -
 #pragma mark Subclass Methods
 
-- (void)addColumn:(id)sender 
+- (IBAction)addColumn:(id)sender 
 {
 	NSMutableArray *column = [[NSMutableArray alloc] init];
 	
@@ -213,7 +213,7 @@
 	[tableGrid reloadData];
 }
 
-- (void)addRow:(id)sender
+- (IBAction)addRow:(id)sender
 {
 	for (NSMutableArray *column in columns) {
 		// Add a blank item to each row
