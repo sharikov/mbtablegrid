@@ -185,6 +185,9 @@
 		[selectionColor set];
 		[selectionPath setLineWidth: 1.0];
 		[selectionPath stroke];
+        
+        [[selectionColor colorWithAlphaComponent:0.2f] set];
+        [selectionPath fill];
 	}
 	
 	// Draw the column drop indicator
