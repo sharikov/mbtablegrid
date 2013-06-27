@@ -28,6 +28,19 @@
 
 @implementation MBTableGridCell
 
+-(id)initTextCell:(NSString *)aString
+{
+    self = [super initTextCell:aString];
+    
+    if (self)
+    {
+        [self setBackgroundColor:[NSColor clearColor]];
+        return self;
+    }
+    
+    return nil;
+}
+
 - (void)drawWithFrame:(NSRect)cellFrame inView:(NSView *)controlView
 {
 	[[NSColor whiteColor] set];
@@ -43,7 +56,7 @@
 	// Draw the bottom border
 	NSRect bottomLine = NSMakeRect(NSMinX(cellFrame), NSMaxY(cellFrame)-1.0, NSWidth(cellFrame), 1.0);
 	NSRectFill(bottomLine);
-	
+    
 	[self drawInteriorWithFrame:cellFrame inView:controlView];
 }
 

@@ -166,7 +166,6 @@
 					[self tableGrid].selectedColumnIndexes = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0,[[self tableGrid] numberOfColumns])];
 				}
 			}
-			
 		}
 	}
 	

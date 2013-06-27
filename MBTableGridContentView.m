@@ -28,6 +28,10 @@
 #import "MBTableGrid.h"
 #import "MBTableGridCell.h"
 
+
+#define kGRAB_HANDLE_HALF_SIDE_LENGTH 2.0f
+#define kGRAB_HANDLE_SIDE_LENGTH 4.0f
+
 @interface MBTableGrid (Private)
 - (id)_objectValueForColumn:(NSUInteger)columnIndex row:(NSUInteger)rowIndex;
 - (void)_setObjectValue:(id)value forColumn:(NSUInteger)columnIndex row:(NSUInteger)rowIndex;
@@ -151,7 +155,8 @@
 		selectionRect.size.width = NSMaxX(selectionBottomRight)-selectionTopLeft.origin.x;
 		selectionRect.size.height = NSMaxY(selectionBottomRight)-selectionTopLeft.origin.y;
 		
-		NSBezierPath *selectionPath = [NSBezierPath bezierPathWithRect:NSInsetRect(selectionRect, 1, 1)];
+        NSRect selectionInsetRect = NSInsetRect(selectionRect, 1, 1);
+		NSBezierPath *selectionPath = [NSBezierPath bezierPathWithRect:selectionInsetRect];
 		NSAffineTransform *translate = [NSAffineTransform transform];
 		[translate translateXBy:-0.5 yBy:-0.5];
 		[selectionPath transformUsingAffineTransform:translate];
@@ -163,6 +168,13 @@
 		if (![[firstResponder class] isSubclassOfClass:[NSView class]] || ![(NSView *)firstResponder isDescendantOf:[self tableGrid]] || ![[self window] isKeyWindow]) {
 			selectionColor = [[selectionColor colorUsingColorSpaceName:NSDeviceWhiteColorSpace] colorUsingColorSpaceName:NSDeviceRGBColorSpace];
 		}
+        else
+        {
+            // Draw grab handle
+            [selectionColor set];
+            NSRect grabHandle = NSMakeRect(NSMaxX(selectionInsetRect) - kGRAB_HANDLE_HALF_SIDE_LENGTH, NSMaxY(selectionInsetRect) - kGRAB_HANDLE_HALF_SIDE_LENGTH, kGRAB_HANDLE_SIDE_LENGTH, kGRAB_HANDLE_SIDE_LENGTH);
+            NSRectFill(grabHandle);
+        }
 		
 		[selectionColor set];
 		[selectionPath setLineWidth: 1.0];
