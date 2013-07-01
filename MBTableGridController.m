@@ -55,11 +55,6 @@
 	[tableGrid registerForDraggedTypes:[NSArray arrayWithObjects:NSStringPboardType, nil]];
 }
 
-- (void)dealloc
-{
-	[columns release];
-	[super dealloc];
-}
 
 #pragma mark -
 #pragma mark Protocol Methods
@@ -208,7 +203,6 @@
 	}
 	
 	[columns addObject:column];
-	[column release];
 	
 	[tableGrid reloadData];
 }

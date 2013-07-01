@@ -77,8 +77,8 @@
         grabHandleRect = NSRectFromCGRect(CGRectZero);
 		
 		// Cache the cursor image
-		cursorImage = [[self _cellSelectionCursorImage] retain];
-        cursorExtendSelectionImage = [[self _cellExtendSelectionCursorImage] retain];
+		cursorImage = [self _cellSelectionCursorImage];
+        cursorExtendSelectionImage = [self _cellExtendSelectionCursorImage];
 		
 		isDraggingColumnOrRow = NO;
 		
@@ -90,12 +90,6 @@
 	return self;
 }
 
-- (void)dealloc
-{
-	[_cell release];
-	[cursorImage release];
-	[super dealloc];
-}
 
 - (void)drawRect:(NSRect)rect
 {	
@@ -584,7 +578,7 @@
 - (NSCursor *)_cellSelectionCursor
 {
 	NSCursor *cursor = [[NSCursor alloc] initWithImage:cursorImage hotSpot:NSMakePoint(8, 8)];
-	return [cursor autorelease];
+	return cursor;
 }
 
 /**
@@ -619,7 +613,6 @@
 	NSRectFill(verticalOuter);
 	
 	[[NSGraphicsContext currentContext] restoreGraphicsState];
-	[shadow release];
 	
 	// Fill them again to compensate for the shadows
 	NSRectFill(horizontalOuter);
@@ -631,13 +624,13 @@
 	
 	[image unlockFocus];
 	
-	return [image autorelease];
+	return image;
 }
 
 - (NSCursor *)_cellExtendSelectionCursor
 {
 	NSCursor *cursor = [[NSCursor alloc] initWithImage:cursorExtendSelectionImage hotSpot:NSMakePoint(8, 8)];
-	return [cursor autorelease];
+	return cursor;
 }
 
 /**
@@ -672,7 +665,6 @@
 	NSRectFill(verticalOuter);
 	
 	[[NSGraphicsContext currentContext] restoreGraphicsState];
-	[shadow release];
 	
 	// Fill them again to compensate for the shadows
 	NSRectFill(horizontalOuter);
@@ -684,7 +676,7 @@
 	
 	[image unlockFocus];
 	
-	return [image autorelease];
+	return image;
 }
 
 @end

@@ -103,7 +103,6 @@ NSString *MBTableGridRowDataType = @"MBTableGridRowDataType";
 		[defaultCell setScrollable:YES];
 		[defaultCell setLineBreakMode:NSLineBreakByTruncatingTail];
 		[self setCell:defaultCell];
-		[defaultCell release];
 		
 		// Setup the column headers
 		NSRect columnHeaderFrame = NSMakeRect(MBTableGridRowHeaderWidth, 0, frameRect.size.width-MBTableGridRowHeaderWidth, MBTableGridColumnHeaderHeight);
@@ -164,11 +163,6 @@ NSString *MBTableGridRowDataType = @"MBTableGridRowDataType";
 - (void)dealloc
 {
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
-	[columnHeaderScrollView release];
-	[columnHeaderView release];
-	[rowHeaderScrollView release];
-	[rowHeaderView release];
-	[super dealloc];
 }
 
 - (BOOL)isFlipped
@@ -957,16 +951,13 @@ NSString *MBTableGridRowDataType = @"MBTableGridRowDataType";
 	if(anIndexSet == selectedColumnIndexes)
 		return;
 	
-	if(selectedColumnIndexes) {
-		[selectedColumnIndexes release];
-	}
 	
 	// Allow the delegate to validate the selection
 	if ([[self delegate] respondsToSelector:@selector(tableGrid:willSelectColumnsAtIndexPath:)]) {
 		anIndexSet = [[self delegate] tableGrid:self willSelectColumnsAtIndexPath:anIndexSet];
 	}
 	
-	selectedColumnIndexes = [anIndexSet retain];
+	selectedColumnIndexes = anIndexSet;
 	
 	[self setNeedsDisplay:YES];
 	
@@ -979,16 +970,13 @@ NSString *MBTableGridRowDataType = @"MBTableGridRowDataType";
 	if(anIndexSet == selectedColumnIndexes)
 		return;
 	
-	if(selectedRowIndexes) {
-		[selectedRowIndexes release];
-	}
 	
 	// Allow the delegate to validate the selection
 	if ([[self delegate] respondsToSelector:@selector(tableGrid:willSelectRowsAtIndexPath:)]) {
 		anIndexSet = [[self delegate] tableGrid:self willSelectRowsAtIndexPath:anIndexSet];
 	}
 	
-	selectedRowIndexes = [anIndexSet retain];
+	selectedRowIndexes = anIndexSet;
 	
 	[self setNeedsDisplay:YES];
 	
@@ -1056,8 +1044,6 @@ NSString *MBTableGridRowDataType = @"MBTableGridRowDataType";
 		NSRect bottomLine = NSMakeRect(NSMinX(aRect), NSMaxY(aRect)-1.0, NSWidth(aRect), 1.0);
 		NSRectFill(bottomLine);
 		
-		[topGradient release];
-		[bottomGradient release];
 	}
 }
 
@@ -1091,8 +1077,6 @@ NSString *MBTableGridRowDataType = @"MBTableGridRowDataType";
 		NSRect rightLine = NSMakeRect(NSMaxX(aRect)-1, NSMinY(aRect), 1.0, NSHeight(aRect));
 		NSRectFill(rightLine);
 		
-		[topGradient release];
-		[bottomGradient release];
 	}
 }
 
@@ -1137,8 +1121,6 @@ NSString *MBTableGridRowDataType = @"MBTableGridRowDataType";
 		NSRect bottomLine = NSMakeRect(NSMinX(aRect), NSMaxY(aRect)-1.0, NSWidth(aRect), 1.0);
 		NSRectFill(bottomLine);
 		
-		[topGradient release];
-		[bottomGradient release];
 	}
 }
 
@@ -1164,7 +1146,7 @@ NSString *MBTableGridRowDataType = @"MBTableGridRowDataType";
 		return [[self dataSource] tableGrid:self headerStringForRow:rowIndex];
 	}
 	
-	return [NSString stringWithFormat:@"%i", (rowIndex+1)];
+	return [NSString stringWithFormat:@"%lu", (rowIndex+1)];
 }
 
 - (id)_objectValueForColumn:(NSUInteger)columnIndex row:(NSUInteger)rowIndex
@@ -1304,9 +1286,8 @@ NSString *MBTableGridRowDataType = @"MBTableGridRowDataType";
 	[finalImage lockFocus];
 	[opaqueImage compositeToPoint:NSZeroPoint operation:NSCompositeCopy fraction:0.7];
 	[finalImage unlockFocus];
-	[opaqueImage release];
 	
-	return [finalImage autorelease];
+	return finalImage;
 }
 
 - (NSImage *)_imageForSelectedRows
@@ -1326,9 +1307,8 @@ NSString *MBTableGridRowDataType = @"MBTableGridRowDataType";
 	[finalImage lockFocus];
 	[opaqueImage compositeToPoint:NSZeroPoint operation:NSCompositeCopy fraction:0.7];
 	[finalImage unlockFocus];
-	[opaqueImage release];
 	
-	return [finalImage autorelease];
+	return finalImage;
 }
 
 - (NSUInteger)_dropColumnForPoint:(NSPoint)aPoint
