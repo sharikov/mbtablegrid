@@ -20,6 +20,11 @@
 		E2E62BBD1781C37B00F36275 /* MBTableGridHeaderCell.m in Sources */ = {isa = PBXBuildFile; fileRef = C9412A4A0D8A294F00E9E614 /* MBTableGridHeaderCell.m */; };
 		E2E62BBE1781C38000F36275 /* MBTableGridCell.m in Sources */ = {isa = PBXBuildFile; fileRef = C9412D7C0D8B5AB900E9E614 /* MBTableGridCell.m */; };
 		E2E62BBF1781C3FE00F36275 /* MBTableGrid.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E2E62BAA1781C33400F36275 /* MBTableGrid.framework */; };
+		E2E62BF71781C53800F36275 /* MBTableGrid.h in Headers */ = {isa = PBXBuildFile; fileRef = C9412A3D0D8A061C00E9E614 /* MBTableGrid.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E2E62BF81781C53800F36275 /* MBTableGridContentView.h in Headers */ = {isa = PBXBuildFile; fileRef = C9412B200D8B2C5E00E9E614 /* MBTableGridContentView.h */; };
+		E2E62BF91781C53800F36275 /* MBTableGridHeaderView.h in Headers */ = {isa = PBXBuildFile; fileRef = C9412B380D8B2F5400E9E614 /* MBTableGridHeaderView.h */; };
+		E2E62BFA1781C53800F36275 /* MBTableGridHeaderCell.h in Headers */ = {isa = PBXBuildFile; fileRef = C9412A490D8A294F00E9E614 /* MBTableGridHeaderCell.h */; };
+		E2E62BFB1781C53800F36275 /* MBTableGridCell.h in Headers */ = {isa = PBXBuildFile; fileRef = C9412D7B0D8B5AB900E9E614 /* MBTableGridCell.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -186,6 +191,11 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E2E62BF71781C53800F36275 /* MBTableGrid.h in Headers */,
+				E2E62BF81781C53800F36275 /* MBTableGridContentView.h in Headers */,
+				E2E62BF91781C53800F36275 /* MBTableGridHeaderView.h in Headers */,
+				E2E62BFB1781C53800F36275 /* MBTableGridCell.h in Headers */,
+				E2E62BFA1781C53800F36275 /* MBTableGridHeaderCell.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
