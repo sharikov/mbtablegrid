@@ -52,7 +52,7 @@
 	[tableGrid reloadData];
 	
 	// Register to receive text strings
-	[tableGrid registerForDraggedTypes:[NSArray arrayWithObjects:NSStringPboardType, nil]];
+	[tableGrid registerForDraggedTypes:@[NSStringPboardType]];
 }
 
 
@@ -64,7 +64,7 @@
 - (NSUInteger)numberOfRowsInTableGrid:(MBTableGrid *)aTableGrid
 {
 	if ([columns count] > 0) {
-		return [[columns objectAtIndex:0] count];
+		return [columns[0] count];
 	}
 	return 0;
 }
@@ -81,13 +81,13 @@
 		return nil;
 	}
 	
-	NSMutableArray *column = [columns objectAtIndex:columnIndex];
+	NSMutableArray *column = columns[columnIndex];
 	
 	if (rowIndex >= [column count]) {
 		return nil;
 	}
 	
-	id value = [column objectAtIndex:rowIndex];
+	id value = column[rowIndex];
 	
 	return value;
 }
@@ -98,7 +98,7 @@
 		return;
 	}	
 	
-	NSMutableArray *column = [columns objectAtIndex:columnIndex];
+	NSMutableArray *column = columns[columnIndex];
 	
 	if (rowIndex >= [column count]) {
 		return;
@@ -108,7 +108,7 @@
 		anObject = @"";
 	}
 	
-	[column replaceObjectAtIndex:rowIndex withObject:anObject];
+	column[rowIndex] = anObject;
 }
 
 -(NSColor *)tableGrid:(MBTableGrid *)aTableGrid backgroundColorForColumn:(NSUInteger)columnIndex row:(NSUInteger)rowIndex
@@ -191,7 +191,7 @@
 	
 	// If there are already other columns, get the number of rows from one of them
 	if ([columns count] > 0) {
-		numberOfRows = [(NSMutableArray *)[columns objectAtIndex:0] count];
+		numberOfRows = [(NSMutableArray *)columns[0] count];
 	}
 	
 	NSUInteger row = 0;
