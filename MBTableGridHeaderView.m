@@ -61,7 +61,7 @@
 {
 	if (self.orientation == MBTableHeaderHorizontalOrientation) {
 		// Draw the column headers
-		NSUInteger numberOfColumns = [[self tableGrid] numberOfColumns];
+		NSUInteger numberOfColumns = [self tableGrid].numberOfColumns;
 		[headerCell setOrientation:self.orientation];
 		NSUInteger column = 0;
 		while (column < numberOfColumns) {
@@ -84,7 +84,7 @@
 		}
 	} else if (self.orientation == MBTableHeaderVerticalOrientation) {
 		// Draw the row headers
-		NSUInteger numberOfRows = [[self tableGrid] numberOfRows];
+		NSUInteger numberOfRows = [self tableGrid].numberOfRows;
 		[headerCell setOrientation:self.orientation];
 		NSUInteger row = 0;
 		while(row < numberOfRows) {
@@ -131,24 +131,24 @@
 			if(self.orientation == MBTableHeaderHorizontalOrientation) {
 				mouseDownItem = column;
 				
-				if([[self tableGrid].selectedColumnIndexes containsIndex:column] && [[self tableGrid].selectedRowIndexes count] == [[self tableGrid] numberOfRows]) {
+				if([[self tableGrid].selectedColumnIndexes containsIndex:column] && [[self tableGrid].selectedRowIndexes count] == [self tableGrid].numberOfRows) {
 					// Allow the user to drag the column
 					shouldDragItems = YES;
 				} else {
 					[self tableGrid].selectedColumnIndexes = [NSIndexSet indexSetWithIndex:column];
 					// Select every row
-					[self tableGrid].selectedRowIndexes = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0,[[self tableGrid] numberOfRows])];
+					[self tableGrid].selectedRowIndexes = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0,[self tableGrid].numberOfRows)];
 				}
 			} else if(self.orientation == MBTableHeaderVerticalOrientation) {
 				mouseDownItem = row;
 				
-				if([[self tableGrid].selectedRowIndexes containsIndex:row] && [[self tableGrid].selectedColumnIndexes count] == [[self tableGrid] numberOfColumns]) {
+				if([[self tableGrid].selectedRowIndexes containsIndex:row] && [[self tableGrid].selectedColumnIndexes count] == [self tableGrid].numberOfColumns) {
 					// Allow the user to drag the row
 					shouldDragItems = YES;
 				} else {
 					[self tableGrid].selectedRowIndexes = [NSIndexSet indexSetWithIndex:row];
 					// Select every column
-					[self tableGrid].selectedColumnIndexes = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0,[[self tableGrid] numberOfColumns])];
+					[self tableGrid].selectedColumnIndexes = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0,[self tableGrid].numberOfColumns)];
 				}
 			}
 		}
@@ -220,11 +220,11 @@
 		if (self.orientation == MBTableHeaderHorizontalOrientation) {
 			[self tableGrid].selectedColumnIndexes = [NSIndexSet indexSetWithIndex:mouseDownItem];
 			// Select every row
-			[self tableGrid].selectedRowIndexes = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0,[[self tableGrid] numberOfRows])];			
+			[self tableGrid].selectedRowIndexes = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0,[self tableGrid].numberOfRows)];			
 		} else if (self.orientation == MBTableHeaderVerticalOrientation) {
 			[self tableGrid].selectedRowIndexes = [NSIndexSet indexSetWithIndex:mouseDownItem];
 			// Select every column
-			[self tableGrid].selectedColumnIndexes = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0,[[self tableGrid] numberOfColumns])];			
+			[self tableGrid].selectedColumnIndexes = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0,[self tableGrid].numberOfColumns)];			
 		}
 	}
 	// Reset the pressed item

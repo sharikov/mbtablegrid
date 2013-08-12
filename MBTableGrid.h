@@ -224,7 +224,8 @@ typedef enum {
  *
  * @see			numberOfColumns
  */
-- (NSUInteger)numberOfRows;
+
+@property (nonatomic, assign) NSUInteger numberOfRows;
 
 /**
  * @brief		Returns the number of columns in the receiver.
@@ -233,7 +234,8 @@ typedef enum {
  *
  * @see			numberOfRows
  */
-- (NSUInteger)numberOfColumns;
+
+@property (nonatomic, assign) NSUInteger numberOfColumns;
 
 /**
  * @}

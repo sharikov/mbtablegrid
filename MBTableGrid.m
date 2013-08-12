@@ -343,7 +343,7 @@ NSString *MBTableGridRowDataType = @"MBTableGridRowDataType";
 	}
 	
 	// If we're already at the last row, do nothing
-	if(row >= ([self numberOfRows]-1))
+	if(row >= (_numberOfRows-1))
 		return;
 	
 	// If the Shift key was not held, move the selection
@@ -368,7 +368,7 @@ NSString *MBTableGridRowDataType = @"MBTableGridRowDataType";
 	}
 	
 	// We can't expand past the last row
-	if(stickyRowEdge == MBTableGridTopEdge && lastRow >= ([self numberOfRows]-1))
+	if(stickyRowEdge == MBTableGridTopEdge && lastRow >= (_numberOfRows-1))
 		return;
 	
 	if(stickyRowEdge == MBTableGridTopEdge) {
@@ -447,7 +447,7 @@ NSString *MBTableGridRowDataType = @"MBTableGridRowDataType";
 	}
 	
 	// If we're already at the last column, do nothing
-	if(column >= ([self numberOfColumns]-1))
+	if(column >= (_numberOfColumns-1))
 		return;
 	
 	// If the Shift key was not held, move the selection
@@ -472,7 +472,7 @@ NSString *MBTableGridRowDataType = @"MBTableGridRowDataType";
 	}
 	
 	// We can't expand past the last column
-	if(stickyColumnEdge == MBTableGridLeftEdge && lastColumn >= ([self numberOfColumns]-1))
+	if(stickyColumnEdge == MBTableGridLeftEdge && lastColumn >= (_numberOfColumns-1))
 		return;
 	
 	if(stickyColumnEdge == MBTableGridLeftEdge) {
@@ -490,8 +490,8 @@ NSString *MBTableGridRowDataType = @"MBTableGridRowDataType";
 	stickyColumnEdge = MBTableGridLeftEdge;
 	stickyRowEdge = MBTableGridTopEdge;
 	
-	self.selectedColumnIndexes = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, [self numberOfColumns])];
-	self.selectedRowIndexes = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, [self numberOfRows])];
+	self.selectedColumnIndexes = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, _numberOfColumns)];
+	self.selectedRowIndexes = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, _numberOfRows)];
 }
 
 - (void)deleteBackward:(id)sender
@@ -801,31 +801,29 @@ NSString *MBTableGridRowDataType = @"MBTableGridRowDataType";
 
 #pragma mark Dimensions
 
-- (NSUInteger)numberOfRows
-{
-	// Ask the data source
-	if([[self dataSource] respondsToSelector:@selector(numberOfRowsInTableGrid:)]) {
-		return [[self dataSource] numberOfRowsInTableGrid:self];
-	}
-	return 0;
-}
-
-- (NSUInteger)numberOfColumns
-{
-	// Ask the data source
-	if([[self dataSource] respondsToSelector:@selector(numberOfColumnsInTableGrid:)]) {
-		return [[self dataSource] numberOfColumnsInTableGrid:self];
-	}
-	return 0;
-}
 
 #pragma mark Reloading the Grid
 
 - (void)reloadData
 {
+    
+    // Set number of columns
+    if([[self dataSource] respondsToSelector:@selector(numberOfColumnsInTableGrid:)]) {
+        
+		_numberOfColumns =  [[self dataSource] numberOfColumnsInTableGrid:self];
+	
+    }
+    
+    // Set number of rows
+    if([[self dataSource] respondsToSelector:@selector(numberOfRowsInTableGrid:)]) {
+        
+		_numberOfRows =  [[self dataSource] numberOfRowsInTableGrid:self];
+        
+	}
+    
 	// Update the content view's size
-	NSUInteger lastColumn = [self numberOfColumns]-1;
-	NSUInteger lastRow = [self numberOfRows]-1;
+	NSUInteger lastColumn = _numberOfColumns-1;
+	NSUInteger lastRow = _numberOfRows-1;
 	NSRect bottomRightCellFrame = [contentView frameOfCellAtColumn:lastColumn row:lastRow];
 	
 	NSRect contentRect = NSMakeRect([contentView frame].origin.x, [contentView frame].origin.y, NSMaxX(bottomRightCellFrame), NSMaxY(bottomRightCellFrame));
@@ -902,7 +900,7 @@ NSString *MBTableGridRowDataType = @"MBTableGridRowDataType";
 - (NSInteger)columnAtPoint:(NSPoint)aPoint
 {
 	NSInteger column = 0;
-	while(column < [self numberOfColumns]) {
+	while(column < _numberOfColumns) {
 		NSRect columnFrame = [self rectOfColumn:column];
 		if(NSPointInRect(aPoint, columnFrame)) {
 			return column;
@@ -915,7 +913,7 @@ NSString *MBTableGridRowDataType = @"MBTableGridRowDataType";
 - (NSInteger)rowAtPoint:(NSPoint)aPoint
 {
 	NSInteger row = 0;
-	while(row < [self numberOfRows]) {
+	while(row < _numberOfRows) {
 		NSRect rowFrame = [self rectOfRow:row];
 		if(NSPointInRect(aPoint, rowFrame)) {
 			return row;

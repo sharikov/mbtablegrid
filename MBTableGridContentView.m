@@ -93,8 +93,8 @@
 
 - (void)drawRect:(NSRect)rect
 {	
-	NSUInteger numberOfColumns = [[self tableGrid] numberOfColumns];
-	NSUInteger numberOfRows = [[self tableGrid] numberOfRows];
+	NSUInteger numberOfColumns = [self tableGrid].numberOfColumns;
+	NSUInteger numberOfRows = [self tableGrid].numberOfRows;
 	
 	NSUInteger firstColumn = NSNotFound;
 	NSUInteger lastColumn = numberOfColumns - 1;
@@ -152,7 +152,7 @@
 	NSIndexSet *selectedColumns = [[self tableGrid] selectedColumnIndexes];
 	NSIndexSet *selectedRows = [[self tableGrid] selectedRowIndexes];
 	
-	if([selectedColumns count] && [selectedRows count] && [[self tableGrid] numberOfColumns] > 0 && [[self tableGrid] numberOfRows] > 0) {
+	if([selectedColumns count] && [selectedRows count] && [self tableGrid].numberOfColumns > 0 && [self tableGrid].numberOfRows > 0) {
 		NSRect selectionTopLeft = [self frameOfCellAtColumn:[selectedColumns firstIndex] row:[selectedRows firstIndex]];
 		NSRect selectionBottomRight = [self frameOfCellAtColumn:[selectedColumns lastIndex] row:[selectedRows lastIndex]];
 		
@@ -194,9 +194,9 @@
 	}
 	
 	// Draw the column drop indicator
-	if (isDraggingColumnOrRow && dropColumn != NSNotFound && dropColumn <= [[self tableGrid] numberOfColumns] && dropRow == NSNotFound) {
+	if (isDraggingColumnOrRow && dropColumn != NSNotFound && dropColumn <= [self tableGrid].numberOfColumns && dropRow == NSNotFound) {
 		NSRect columnBorder;
-		if(dropColumn < [[self tableGrid] numberOfColumns]) {
+		if(dropColumn < [self tableGrid].numberOfColumns) {
 			columnBorder = [self rectOfColumn:dropColumn];
 		} else {
 			columnBorder = [self rectOfColumn:dropColumn-1];
@@ -215,9 +215,9 @@
 	}
 	
 	// Draw the row drop indicator
-	if (isDraggingColumnOrRow && dropRow != NSNotFound && dropRow <= [[self tableGrid] numberOfRows] && dropColumn == NSNotFound) {
+	if (isDraggingColumnOrRow && dropRow != NSNotFound && dropRow <= [self tableGrid].numberOfRows && dropColumn == NSNotFound) {
 		NSRect rowBorder;
-		if(dropRow < [[self tableGrid] numberOfRows]) {
+		if(dropRow < [self tableGrid].numberOfRows) {
 			rowBorder = [self rectOfRow:dropRow];
 		} else {
 			rowBorder = [self rectOfRow:dropRow-1];
@@ -236,7 +236,7 @@
 	}
 	
 	// Draw the cell drop indicator
-	if (!isDraggingColumnOrRow && dropRow != NSNotFound && dropRow <= [[self tableGrid] numberOfRows] && dropColumn != NSNotFound && dropColumn <= [[self tableGrid] numberOfColumns]) {
+	if (!isDraggingColumnOrRow && dropRow != NSNotFound && dropRow <= [self tableGrid].numberOfRows && dropColumn != NSNotFound && dropColumn <= [self tableGrid].numberOfColumns) {
 		NSRect cellFrame = [self frameOfCellAtColumn:dropColumn row:dropRow];
 		cellFrame.origin.x -= 2.0;
 		cellFrame.origin.y -= 2.0;
@@ -548,7 +548,7 @@
 - (NSInteger)columnAtPoint:(NSPoint)aPoint
 {
 	NSInteger column = 0;
-	while(column < [[self tableGrid] numberOfColumns]) {
+	while(column < [self tableGrid].numberOfColumns) {
 		NSRect columnFrame = [self rectOfColumn:column];
 		if(NSPointInRect(aPoint, columnFrame)) {
 			return column;
@@ -561,7 +561,7 @@
 - (NSInteger)rowAtPoint:(NSPoint)aPoint
 {
 	NSInteger row = 0;
-	while(row < [[self tableGrid] numberOfRows]) {
+	while(row < [self tableGrid].numberOfRows) {
 		NSRect rowFrame = [self rectOfRow:row];
 		if(NSPointInRect(aPoint, rowFrame)) {
 			return row;
