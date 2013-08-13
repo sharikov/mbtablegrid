@@ -33,8 +33,12 @@
 
 - (void)awakeFromNib 
 {
+    
+    
+    columnSampleWidths = @[@40, @50, @60, @70, @80, @90, @100, @110, @120, @130];
+    
 	columns = [[NSMutableArray alloc] initWithCapacity:500];
-	
+
 	// Add 10 columns
 	int i = 0;
 	while (i < 10) {
@@ -56,6 +60,26 @@
 }
 
 
+-(NSString *) genRandStringLength: (int) len
+{
+    
+    // Create alphanumeric table
+    NSString *letters = @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    
+    // Create mutable string
+    NSMutableString *randomString = [NSMutableString stringWithCapacity: len];
+    
+    // Add random character to string
+    for (int i=0; i<len; i++) {
+        
+        [randomString appendFormat: @"%C", [letters characterAtIndex: arc4random() % [letters length]]];
+        
+    }
+    
+    // return string
+    return randomString;
+}
+
 #pragma mark -
 #pragma mark Protocol Methods
 
@@ -63,6 +87,7 @@
 
 - (NSUInteger)numberOfRowsInTableGrid:(MBTableGrid *)aTableGrid
 {
+    
 	if ([columns count] > 0) {
 		return [columns[0] count];
 	}
@@ -109,6 +134,13 @@
 	}
 	
 	column[rowIndex] = anObject;
+}
+
+- (float)tableGrid:(MBTableGrid *)aTableGrid setWidthForColumn:(NSUInteger)columnIndex
+{
+    
+    return (columnIndex < columnSampleWidths.count) ? [columnSampleWidths[columnIndex] floatValue] : 60;
+    
 }
 
 -(NSColor *)tableGrid:(MBTableGrid *)aTableGrid backgroundColorForColumn:(NSUInteger)columnIndex row:(NSUInteger)rowIndex

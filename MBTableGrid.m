@@ -213,6 +213,28 @@ NSString *MBTableGridRowDataType = @"MBTableGridRowDataType";
 	[self _drawRowHeaderBackgroundInRect:rowHeaderRect];
 }
 
+#pragma mark Resize scrollview content size
+
+- (void) resizeColumnWithIndex:(NSUInteger)columnIndex withDistance:(float)distance
+{
+    
+    // Get column key
+    NSString *columnKey = [NSString stringWithFormat:@"column%lu", columnIndex];
+
+    // Set new width of column
+    float currentWidth = [columnWidths[columnKey] floatValue];
+    currentWidth += distance;
+    columnWidths[columnKey] = @(currentWidth);
+    
+    // Update views with new sizes
+    [contentView setFrameSize:NSMakeSize(NSWidth(contentView.frame) + distance, NSHeight(contentView.frame))];
+    [columnHeaderView setFrameSize:NSMakeSize(NSWidth(columnHeaderView.frame) + distance, NSHeight(columnHeaderView.frame))];
+    [contentView setNeedsDisplay:YES];
+    [columnHeaderView setNeedsDisplay:YES];
+    
+}
+
+
 - (void)registerForDraggedTypes:(NSArray *)pboardTypes
 {
 	// Add the column and row types to the array
@@ -1193,13 +1215,12 @@ NSString *MBTableGridRowDataType = @"MBTableGridRowDataType";
 {
     
     NSString *column = [NSString stringWithFormat:@"column%lu", columnIndex];
-    if (columnWidths[column]) {
-        
+    if (columnIndex < columnWidths.count) {
         return [columnWidths[column] floatValue];
     } else {
         return [self _setWidthForColumn:columnIndex];
     }
-        
+    
 }
 
 - (float)_setWidthForColumn:(NSUInteger)columnIndex

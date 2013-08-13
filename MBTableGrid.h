@@ -137,7 +137,7 @@ typedef enum {
 	MBTableGridEdge stickyRowEdge;
     
     NSMutableDictionary *columnWidths;
-    
+        
 }
 
 #pragma mark -
@@ -167,6 +167,28 @@ typedef enum {
  * @see			rectOfRow:
  */
 - (void)reloadData;
+
+/**
+ * @}
+ */
+
+#pragma mark - 
+#pragma mark Resize column
+
+/**
+ * @name		Resize column
+ */
+/**
+ * @{
+ */
+
+/**
+ * @brief		Live resizes column
+ *
+ * @details		This method resizes the column and updates the views
+ *
+ */
+- (void) resizeColumnWithIndex:(NSUInteger)columnIndex withDistance:(float)distance;
 
 /**
  * @}

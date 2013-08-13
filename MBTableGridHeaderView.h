@@ -39,13 +39,15 @@
 	/* Dragging */
 	NSInteger mouseDownItem;
 	NSPoint mouseDownLocation;
+    NSPoint lastMouseDraggingLocation;
 	BOOL shouldDragItems;
 	BOOL isInDrag;
     
     /* Resizing */
     NSMutableArray *trackingAreas;
     BOOL canResize;
-    MBTableGridHeaderCell *currentResizeHeaderCell;
+    BOOL isResizing;
+    NSUInteger draggingColumnIndex;
     
 }
 

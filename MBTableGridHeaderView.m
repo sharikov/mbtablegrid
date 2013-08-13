@@ -55,6 +55,7 @@
         
         // No resize at start
         canResize = NO;
+        isResizing = NO;
         
 	}
 	return self;
@@ -65,6 +66,18 @@
     
 	if (self.orientation == MBTableHeaderHorizontalOrientation) {
         
+        // Remove all tracking areas
+        if (trackingAreas) {
+         
+            for (NSTrackingArea *trackingArea in trackingAreas) {
+                
+                [self removeTrackingArea:trackingArea];
+                
+            }
+            
+        }
+
+        // reset tracking array
         trackingAreas = [NSMutableArray array];
         
 		// Draw the column headers
@@ -87,10 +100,12 @@
 				[headerCell setStringValue:[[self tableGrid] _headerStringForColumn:column]];
 				[headerCell drawWithFrame:headerRect inView:self];
                 
+                // Create new tracking area for resizing columns
                 NSRect resizeRect = NSMakeRect(NSMinX(headerRect) + NSWidth(headerRect) - 2, NSMinY(headerRect), 5, NSHeight(headerRect));
                 NSTrackingArea *resizeTrackingArea = [[NSTrackingArea alloc] initWithRect:resizeRect options:(NSTrackingMouseEnteredAndExited | NSTrackingActiveAlways) owner:self userInfo:nil];
-
-                [trackingAreas addObject:@{@"cell": headerCell, @"tracking":resizeTrackingArea}];
+                
+                // keep track of tracking areas and add tracking to view
+                [trackingAreas addObject:resizeTrackingArea];
                 [self addTrackingArea:resizeTrackingArea];
                 
 			}
@@ -133,7 +148,6 @@
 - (void)mouseDown:(NSEvent *)theEvent
 {
     
-    NSLog(@"mouseDown");
 	// Get the location of the click
 	NSPoint loc = [self convertPoint:[theEvent locationInWindow] fromView:nil];
 	mouseDownLocation = loc;
@@ -142,7 +156,10 @@
 	
     if (canResize) {
         
-        currentResizeHeaderCell = trackingAreas[column][@"cell"];        
+        // Set resize column index
+        draggingColumnIndex = [[self tableGrid] columnAtPoint:[self convertPoint:NSMakePoint(loc.x - 3, loc.y) toView:[self tableGrid]]];
+        lastMouseDraggingLocation = loc;
+        isResizing = YES;
         
     } else {
     
@@ -193,11 +210,13 @@
 	    
     if (canResize) {
         
-//        NSRect currentHeaderRect = self headerRectOfColumn:<#(NSUInteger)#>
-        NSSize currentHeaderCellSize = currentResizeHeaderCell.cellSize;
+        // Set drag distance
+        float dragDistance = loc.x - lastMouseDraggingLocation.x;
+        lastMouseDraggingLocation = loc;
         
-//        NSRect newHeaderWidth = NSMakeRect(NSMinX(<#NSRect aRect#>), <#CGFloat y#>, <#CGFloat w#>, <#CGFloat h#>)
-        
+        // Resize column and resize views
+        [self.tableGrid resizeColumnWithIndex:draggingColumnIndex withDistance:dragDistance];
+               
     } else {
     
         // Drag operation doesn't start until the mouse has moved more than 5 points
@@ -255,7 +274,7 @@
     
     if (canResize) {
         
-        
+        isResizing = NO;
         
     } else {
         
@@ -287,6 +306,7 @@
 - (void)mouseEntered:(NSEvent *)theEvent
 {
     
+    // Change to resize cursor
     [[NSCursor resizeLeftRightCursor] set];
     canResize = YES;
     
@@ -295,8 +315,14 @@
 - (void)mouseExited:(NSEvent *)theEvent
 {
     
-    [[NSCursor arrowCursor] set];
-    canResize = NO;
+    
+    if (!isResizing) {
+        
+        // Revert to normal cursor
+        [[NSCursor arrowCursor] set];
+        canResize = NO;
+        
+    }
     
 }
 
