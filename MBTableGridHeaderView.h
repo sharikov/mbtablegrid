@@ -41,6 +41,12 @@
 	NSPoint mouseDownLocation;
 	BOOL shouldDragItems;
 	BOOL isInDrag;
+    
+    /* Resizing */
+    NSMutableArray *trackingAreas;
+    BOOL canResize;
+    MBTableGridHeaderCell *currentResizeHeaderCell;
+    
 }
 
 /**

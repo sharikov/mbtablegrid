@@ -43,6 +43,7 @@
 
 - (void)drawWithFrame:(NSRect)cellFrame inView:(NSView *)controlView withBackgroundColor:(NSColor *)backgroundColor
 {
+
 	[backgroundColor set];
 	NSRectFill(cellFrame);
     
@@ -51,6 +52,7 @@
 
 - (void)drawWithFrame:(NSRect)cellFrame inView:(NSView *)controlView
 {
+    
 	NSColor *borderColor = [NSColor colorWithDeviceWhite:0.83 alpha:1.0];
 	[borderColor set];
 	

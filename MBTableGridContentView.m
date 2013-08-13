@@ -37,6 +37,7 @@
 - (void)_setObjectValue:(id)value forColumn:(NSUInteger)columnIndex row:(NSUInteger)rowIndex;
 - (BOOL)_canEditCellAtColumn:(NSUInteger)columnIndex row:(NSUInteger)rowIndex;
 - (void)_setStickyColumn:(MBTableGridEdge)stickyColumn row:(MBTableGridEdge)stickyRow;
+- (float)_widthForColumn:(NSUInteger)columnIndex;
 - (id)_backgroundColorForColumn:(NSUInteger)columnIndex row:(NSUInteger)rowIndex;
 - (MBTableGridEdge)_stickyColumn;
 - (MBTableGridEdge)_stickyRow;
@@ -92,7 +93,8 @@
 
 
 - (void)drawRect:(NSRect)rect
-{	
+{
+    
 	NSUInteger numberOfColumns = [self tableGrid].numberOfColumns;
 	NSUInteger numberOfRows = [self tableGrid].numberOfRows;
 	
@@ -132,7 +134,6 @@
 		row = firstRow;
 		while (row <= lastRow) {
 			NSRect cellFrame = [self frameOfCellAtColumn:column row:row];
-			
 			// Only draw the cell if we need to
 			if ([self needsToDrawRect:cellFrame]) {
                 
@@ -387,7 +388,7 @@
 
 - (void)resetCursorRects
 {
-    NSLog(@"%s - %f %f %f %f", __func__, grabHandleRect.origin.x, grabHandleRect.origin.y, grabHandleRect.size.width, grabHandleRect.size.height);
+    //NSLog(@"%s - %f %f %f %f", __func__, grabHandleRect.origin.x, grabHandleRect.origin.y, grabHandleRect.size.width, grabHandleRect.size.height);
 	// The main cursor should be the cell selection cursor
 	[self addCursorRect:[self visibleRect] cursor:[self _cellSelectionCursor]];
     [self addCursorRect:grabHandleRect cursor:[self _cellExtendSelectionCursor]];
@@ -508,12 +509,15 @@
 
 - (NSRect)rectOfColumn:(NSUInteger)columnIndex
 {
-	NSRect rect = NSMakeRect(0, 0, 60, [self frame].size.height);
+    
+    float width = [[self tableGrid] _widthForColumn:columnIndex];
+
+	NSRect rect = NSMakeRect(0, 0, width, [self frame].size.height);
 	//rect.origin.x += 60.0 * columnIndex;
 	
 	NSUInteger i = 0;
 	while(i < columnIndex) {
-		float headerWidth = rect.size.width;
+        float headerWidth = [[self tableGrid] _widthForColumn:i];
 		rect.origin.x += headerWidth;
 		i++;
 	}
@@ -523,6 +527,7 @@
 
 - (NSRect)rectOfRow:(NSUInteger)rowIndex
 {
+    
 	float heightForRow = 20.0;
 	NSRect rect = NSMakeRect(0, 0, [self frame].size.width, heightForRow);
 	

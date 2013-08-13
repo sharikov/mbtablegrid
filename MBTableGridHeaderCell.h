@@ -48,4 +48,6 @@ typedef enum _MBTableGridHeaderOrientation {
  */
 @property(assign) MBTableGridHeaderOrientation orientation;
 
+@property (nonatomic, strong) NSTrackingArea *resizeTrackingArea;
+
 @end
