@@ -39,8 +39,16 @@
 	/* Dragging */
 	NSInteger mouseDownItem;
 	NSPoint mouseDownLocation;
+    NSPoint lastMouseDraggingLocation;
 	BOOL shouldDragItems;
 	BOOL isInDrag;
+    
+    /* Resizing */
+    NSMutableArray *trackingAreas;
+    BOOL canResize;
+    BOOL isResizing;
+    NSUInteger draggingColumnIndex;
+    
 }
 
 /**

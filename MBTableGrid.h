@@ -135,6 +135,9 @@ typedef enum {
 	/* Sticky Edges (for Shift+Arrow expansions) */
 	MBTableGridEdge stickyColumnEdge;
 	MBTableGridEdge stickyRowEdge;
+    
+    NSMutableDictionary *columnWidths;
+        
 }
 
 #pragma mark -
@@ -164,6 +167,28 @@ typedef enum {
  * @see			rectOfRow:
  */
 - (void)reloadData;
+
+/**
+ * @}
+ */
+
+#pragma mark - 
+#pragma mark Resize column
+
+/**
+ * @name		Resize column
+ */
+/**
+ * @{
+ */
+
+/**
+ * @brief		Live resizes column
+ *
+ * @details		This method resizes the column and updates the views
+ *
+ */
+- (void) resizeColumnWithIndex:(NSUInteger)columnIndex withDistance:(float)distance;
 
 /**
  * @}
@@ -224,7 +249,8 @@ typedef enum {
  *
  * @see			numberOfColumns
  */
-- (NSUInteger)numberOfRows;
+
+@property (nonatomic, assign) NSUInteger numberOfRows;
 
 /**
  * @brief		Returns the number of columns in the receiver.
@@ -233,7 +259,8 @@ typedef enum {
  *
  * @see			numberOfRows
  */
-- (NSUInteger)numberOfColumns;
+
+@property (nonatomic, assign) NSUInteger numberOfColumns;
 
 /**
  * @}
@@ -594,6 +621,30 @@ typedef enum {
  * @see			tableGrid:objectValueForColumn:row:
  */
 - (void)tableGrid:(MBTableGrid *)aTableGrid setObjectValue:(id)anObject forColumn:(NSUInteger)columnIndex row:(NSUInteger)rowIndex;
+
+@optional
+
+/**
+ * @brief		Returnd the width of given column.
+ *
+ * @param		aTableGrid		The table grid that sent the message.
+ * @param		columnIndex		A column in \c aTableGrid.
+ *
+ * @see			tableGrid:setWidthForColumn:
+ */
+- (float)tableGrid:(MBTableGrid *)aTableGrid withForColumn:(NSUInteger)columnIndex;
+
+@optional
+
+/**
+ * @brief		Sets the column width for the given column.
+ *
+ * @param		aTableGrid		The table grid that sent the message.
+ * @param		columnIndex		A column in \c aTableGrid.
+ *
+  * @see			tableGrid:widthForColumn:
+ */
+- (float)tableGrid:(MBTableGrid *)aTableGrid setWidthForColumn:(NSUInteger)columnIndex;
 
 /**
  * @}

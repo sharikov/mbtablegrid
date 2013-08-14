@@ -30,6 +30,7 @@
 	IBOutlet MBTableGrid *tableGrid;
 	
 	NSMutableArray *columns;
+    NSArray *columnSampleWidths;
 }
 
 - (IBAction)addColumn:(id)sender;

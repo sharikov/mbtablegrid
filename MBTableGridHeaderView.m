@@ -52,16 +52,36 @@
 		// Initially, we're not dragging anything
 		shouldDragItems = NO;
 		isInDrag = NO;
+        
+        // No resize at start
+        canResize = NO;
+        isResizing = NO;
+        
 	}
 	return self;
 }
 
-
 - (void)drawRect:(NSRect)rect
 {
+    
 	if (self.orientation == MBTableHeaderHorizontalOrientation) {
+        
+        // Remove all tracking areas
+        if (trackingAreas) {
+         
+            for (NSTrackingArea *trackingArea in trackingAreas) {
+                
+                [self removeTrackingArea:trackingArea];
+                
+            }
+            
+        }
+
+        // reset tracking array
+        trackingAreas = [NSMutableArray array];
+        
 		// Draw the column headers
-		NSUInteger numberOfColumns = [[self tableGrid] numberOfColumns];
+		NSUInteger numberOfColumns = [self tableGrid].numberOfColumns;
 		[headerCell setOrientation:self.orientation];
 		NSUInteger column = 0;
 		while (column < numberOfColumns) {
@@ -79,12 +99,22 @@
 				
 				[headerCell setStringValue:[[self tableGrid] _headerStringForColumn:column]];
 				[headerCell drawWithFrame:headerRect inView:self];
+                
+                // Create new tracking area for resizing columns
+                NSRect resizeRect = NSMakeRect(NSMinX(headerRect) + NSWidth(headerRect) - 2, NSMinY(headerRect), 5, NSHeight(headerRect));
+                NSTrackingArea *resizeTrackingArea = [[NSTrackingArea alloc] initWithRect:resizeRect options:(NSTrackingMouseEnteredAndExited | NSTrackingActiveAlways) owner:self userInfo:nil];
+                
+                // keep track of tracking areas and add tracking to view
+                [trackingAreas addObject:resizeTrackingArea];
+                [self addTrackingArea:resizeTrackingArea];
+                
 			}
 			column++;
 		}
+        
 	} else if (self.orientation == MBTableHeaderVerticalOrientation) {
 		// Draw the row headers
-		NSUInteger numberOfRows = [[self tableGrid] numberOfRows];
+		NSUInteger numberOfRows = [self tableGrid].numberOfRows;
 		[headerCell setOrientation:self.orientation];
 		NSUInteger row = 0;
 		while(row < numberOfRows) {
@@ -92,6 +122,7 @@
 			
 			// Only draw the header if we need to
 			if ([self needsToDrawRect:headerRect]) {
+                
 				// Check if any part of the selection is in this column
 				NSIndexSet *selectedRows = [[self tableGrid] selectedRowIndexes];
 				if ([selectedRows containsIndex:row]) {
@@ -116,46 +147,58 @@
 
 - (void)mouseDown:(NSEvent *)theEvent
 {
+    
 	// Get the location of the click
 	NSPoint loc = [self convertPoint:[theEvent locationInWindow] fromView:nil];
 	mouseDownLocation = loc;
 	NSInteger column = [[self tableGrid] columnAtPoint:[self convertPoint:loc toView:[self tableGrid]]];
 	NSInteger row = [[self tableGrid] rowAtPoint:[self convertPoint:loc toView:[self tableGrid]]];
 	
-	// For single clicks,
-	if([theEvent clickCount] == 1) {
-		if(([theEvent modifierFlags] & NSShiftKeyMask) && [self tableGrid].allowsMultipleSelection) {
-			// If the shift key was held down, extend the selection
-		} else {
-			// No modifier keys, so change the selection
-			if(self.orientation == MBTableHeaderHorizontalOrientation) {
-				mouseDownItem = column;
-				
-				if([[self tableGrid].selectedColumnIndexes containsIndex:column] && [[self tableGrid].selectedRowIndexes count] == [[self tableGrid] numberOfRows]) {
-					// Allow the user to drag the column
-					shouldDragItems = YES;
-				} else {
-					[self tableGrid].selectedColumnIndexes = [NSIndexSet indexSetWithIndex:column];
-					// Select every row
-					[self tableGrid].selectedRowIndexes = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0,[[self tableGrid] numberOfRows])];
-				}
-			} else if(self.orientation == MBTableHeaderVerticalOrientation) {
-				mouseDownItem = row;
-				
-				if([[self tableGrid].selectedRowIndexes containsIndex:row] && [[self tableGrid].selectedColumnIndexes count] == [[self tableGrid] numberOfColumns]) {
-					// Allow the user to drag the row
-					shouldDragItems = YES;
-				} else {
-					[self tableGrid].selectedRowIndexes = [NSIndexSet indexSetWithIndex:row];
-					// Select every column
-					[self tableGrid].selectedColumnIndexes = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0,[[self tableGrid] numberOfColumns])];
-				}
-			}
-		}
-	}
-	
-	// Pass the event back to the MBTableGrid (Used to give First Responder status)
-	[[self tableGrid] mouseDown:theEvent];
+    if (canResize) {
+        
+        // Set resize column index
+        draggingColumnIndex = [[self tableGrid] columnAtPoint:[self convertPoint:NSMakePoint(loc.x - 3, loc.y) toView:[self tableGrid]]];
+        lastMouseDraggingLocation = loc;
+        isResizing = YES;
+        
+    } else {
+    
+        // For single clicks,
+        if([theEvent clickCount] == 1) {
+            if(([theEvent modifierFlags] & NSShiftKeyMask) && [self tableGrid].allowsMultipleSelection) {
+                // If the shift key was held down, extend the selection
+            } else {
+                // No modifier keys, so change the selection
+                if(self.orientation == MBTableHeaderHorizontalOrientation) {
+                    mouseDownItem = column;
+                    
+                    if([[self tableGrid].selectedColumnIndexes containsIndex:column] && [[self tableGrid].selectedRowIndexes count] == [self tableGrid].numberOfRows) {
+                        // Allow the user to drag the column
+                        shouldDragItems = YES;
+                    } else {
+                        [self tableGrid].selectedColumnIndexes = [NSIndexSet indexSetWithIndex:column];
+                        // Select every row
+                        [self tableGrid].selectedRowIndexes = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0,[self tableGrid].numberOfRows)];
+                    }
+                } else if(self.orientation == MBTableHeaderVerticalOrientation) {
+                    mouseDownItem = row;
+                    
+                    if([[self tableGrid].selectedRowIndexes containsIndex:row] && [[self tableGrid].selectedColumnIndexes count] == [self tableGrid].numberOfColumns) {
+                        // Allow the user to drag the row
+                        shouldDragItems = YES;
+                    } else {
+                        [self tableGrid].selectedRowIndexes = [NSIndexSet indexSetWithIndex:row];
+                        // Select every column
+                        [self tableGrid].selectedColumnIndexes = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0,[self tableGrid].numberOfColumns)];
+                    }
+                }
+            }
+        }
+        
+        // Pass the event back to the MBTableGrid (Used to give First Responder status)
+        [[self tableGrid] mouseDown:theEvent];
+        
+    }
 }
 
 - (void)mouseDragged:(NSEvent *)theEvent
@@ -164,79 +207,125 @@
 	NSPoint loc = [self convertPoint:[theEvent locationInWindow] fromView:nil];
 	float deltaX = abs(loc.x - mouseDownLocation.x);
 	float deltaY = abs(loc.y - mouseDownLocation.y);
-	
-	// Drag operation doesn't start until the mouse has moved more than 5 points
-	float dragThreshold = 5.0;
-	
-	// If we've met the conditions for a drag operation,
-	if (shouldDragItems && mouseDownItem >= 0 && (deltaX >= dragThreshold || deltaY >= dragThreshold)) {
-		if (self.orientation == MBTableHeaderHorizontalOrientation) {
-			[[self tableGrid] _dragColumnsWithEvent:theEvent];
-		} else if (self.orientation == MBTableHeaderVerticalOrientation) {
-			[[self tableGrid] _dragRowsWithEvent:theEvent];
-		}
-		
-		// We've responded to the drag, so don't respond again during this drag session
-		shouldDragItems = NO;
-		
-		// Flag that we are currently dragging items
-		isInDrag = YES;
-	} 
-	// Otherwise, extend the selection (if possible)
-	else if (mouseDownItem >= 0 && !isInDrag && !shouldDragItems) {
-		// Determine which item is under the mouse
-		NSInteger itemUnderMouse = -1;
-		if (self.orientation == MBTableHeaderHorizontalOrientation) {
-			itemUnderMouse = [[self tableGrid] columnAtPoint:[self convertPoint:loc toView:[self tableGrid]]];
-		} else if(self.orientation == MBTableHeaderVerticalOrientation) {
-			itemUnderMouse = [[self tableGrid] rowAtPoint:[self convertPoint:loc toView:[self tableGrid]]];
-		}
-		
-		// If there's nothing under the mouse, bail out (something went wrong)
-		if (itemUnderMouse < 0)
-			return;
-		
-		// Calculate the range of items to select
-		NSInteger firstItemToSelect = mouseDownItem;
-		NSInteger numberOfItemsToSelect = itemUnderMouse - mouseDownItem + 1;
-		if(itemUnderMouse < mouseDownItem) {
-			firstItemToSelect = itemUnderMouse;
-			numberOfItemsToSelect = mouseDownItem - itemUnderMouse + 1;
-		}
-		
-		// Set the selected items
-		if (self.orientation == MBTableHeaderHorizontalOrientation) {
-			[self tableGrid].selectedColumnIndexes = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(firstItemToSelect, numberOfItemsToSelect)];
-		} else if (self.orientation == MBTableHeaderVerticalOrientation) {
-			[self tableGrid].selectedRowIndexes = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(firstItemToSelect, numberOfItemsToSelect)];
-		}
-	}
+	    
+    if (canResize) {
+        
+        // Set drag distance
+        float dragDistance = loc.x - lastMouseDraggingLocation.x;
+        lastMouseDraggingLocation = loc;
+        
+        // Resize column and resize views
+        [self.tableGrid resizeColumnWithIndex:draggingColumnIndex withDistance:dragDistance];
+               
+    } else {
+    
+        // Drag operation doesn't start until the mouse has moved more than 5 points
+        float dragThreshold = 5.0;
+        
+        // If we've met the conditions for a drag operation,
+        if (shouldDragItems && mouseDownItem >= 0 && (deltaX >= dragThreshold || deltaY >= dragThreshold)) {
+            if (self.orientation == MBTableHeaderHorizontalOrientation) {
+                [[self tableGrid] _dragColumnsWithEvent:theEvent];
+            } else if (self.orientation == MBTableHeaderVerticalOrientation) {
+                [[self tableGrid] _dragRowsWithEvent:theEvent];
+            }
+            
+            // We've responded to the drag, so don't respond again during this drag session
+            shouldDragItems = NO;
+            
+            // Flag that we are currently dragging items
+            isInDrag = YES;
+        }
+        // Otherwise, extend the selection (if possible)
+        else if (mouseDownItem >= 0 && !isInDrag && !shouldDragItems) {
+            // Determine which item is under the mouse
+            NSInteger itemUnderMouse = -1;
+            if (self.orientation == MBTableHeaderHorizontalOrientation) {
+                itemUnderMouse = [[self tableGrid] columnAtPoint:[self convertPoint:loc toView:[self tableGrid]]];
+            } else if(self.orientation == MBTableHeaderVerticalOrientation) {
+                itemUnderMouse = [[self tableGrid] rowAtPoint:[self convertPoint:loc toView:[self tableGrid]]];
+            }
+            
+            // If there's nothing under the mouse, bail out (something went wrong)
+            if (itemUnderMouse < 0)
+                return;
+            
+            // Calculate the range of items to select
+            NSInteger firstItemToSelect = mouseDownItem;
+            NSInteger numberOfItemsToSelect = itemUnderMouse - mouseDownItem + 1;
+            if(itemUnderMouse < mouseDownItem) {
+                firstItemToSelect = itemUnderMouse;
+                numberOfItemsToSelect = mouseDownItem - itemUnderMouse + 1;
+            }
+            
+            // Set the selected items
+            if (self.orientation == MBTableHeaderHorizontalOrientation) {
+                [self tableGrid].selectedColumnIndexes = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(firstItemToSelect, numberOfItemsToSelect)];
+            } else if (self.orientation == MBTableHeaderVerticalOrientation) {
+                [self tableGrid].selectedRowIndexes = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(firstItemToSelect, numberOfItemsToSelect)];
+            }
+        }
+        
+    }
 }
 
 - (void)mouseUp:(NSEvent *)theEvent
 {
-	// If we only clicked on a header that was part of a bigger selection, select it
-	if(shouldDragItems && !isInDrag) {
-		if (self.orientation == MBTableHeaderHorizontalOrientation) {
-			[self tableGrid].selectedColumnIndexes = [NSIndexSet indexSetWithIndex:mouseDownItem];
-			// Select every row
-			[self tableGrid].selectedRowIndexes = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0,[[self tableGrid] numberOfRows])];			
-		} else if (self.orientation == MBTableHeaderVerticalOrientation) {
-			[self tableGrid].selectedRowIndexes = [NSIndexSet indexSetWithIndex:mouseDownItem];
-			// Select every column
-			[self tableGrid].selectedColumnIndexes = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0,[[self tableGrid] numberOfColumns])];			
-		}
-	}
-	// Reset the pressed item
-	mouseDownItem = -1;
-	
-	// In case it didn't already happen, reset the drag flags
-	shouldDragItems = NO;
-	isInDrag = NO;
-	
-	// Reset the location
-	mouseDownLocation = NSZeroPoint;
+    
+    if (canResize) {
+        
+        isResizing = NO;
+        
+    } else {
+        
+        // If we only clicked on a header that was part of a bigger selection, select it
+        if(shouldDragItems && !isInDrag) {
+            if (self.orientation == MBTableHeaderHorizontalOrientation) {
+                [self tableGrid].selectedColumnIndexes = [NSIndexSet indexSetWithIndex:mouseDownItem];
+                // Select every row
+                [self tableGrid].selectedRowIndexes = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0,[self tableGrid].numberOfRows)];
+            } else if (self.orientation == MBTableHeaderVerticalOrientation) {
+                [self tableGrid].selectedRowIndexes = [NSIndexSet indexSetWithIndex:mouseDownItem];
+                // Select every column
+                [self tableGrid].selectedColumnIndexes = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0,[self tableGrid].numberOfColumns)];
+            }
+        }
+        // Reset the pressed item
+        mouseDownItem = -1;
+        
+        // In case it didn't already happen, reset the drag flags
+        shouldDragItems = NO;
+        isInDrag = NO;
+        
+        // Reset the location
+        mouseDownLocation = NSZeroPoint;
+        
+    }
 }
+
+- (void)mouseEntered:(NSEvent *)theEvent
+{
+    
+    // Change to resize cursor
+    [[NSCursor resizeLeftRightCursor] set];
+    canResize = YES;
+    
+}
+
+- (void)mouseExited:(NSEvent *)theEvent
+{
+    
+    
+    if (!isResizing) {
+        
+        // Revert to normal cursor
+        [[NSCursor arrowCursor] set];
+        canResize = NO;
+        
+    }
+    
+}
+
 
 #pragma mark -
 #pragma mark Subclass Methods

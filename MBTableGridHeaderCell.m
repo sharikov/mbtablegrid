@@ -31,6 +31,8 @@
 
 - (void)drawWithFrame:(NSRect)cellFrame inView:(NSView *)controlView
 {
+    
+    
 	NSColor *topColor = [NSColor colorWithDeviceWhite:0.95 alpha:1.0];
 	NSColor *sideColor = [NSColor colorWithDeviceWhite:1.0 alpha:0.4];
 	NSColor *borderColor = [NSColor colorWithDeviceWhite:0.65 alpha:1.0];
@@ -42,7 +44,7 @@
 		[[NSBezierPath bezierPathWithRect:sideLine] fill];
 		sideLine.origin.x = NSMaxX(cellFrame)-2.0;
 		[[NSBezierPath bezierPathWithRect:sideLine] fill];
-		
+		        
 		// Draw the right border
 		NSRect borderLine = NSMakeRect(NSMaxX(cellFrame)-1, NSMinY(cellFrame), 1.0, NSHeight(cellFrame));
 		[borderColor set];
@@ -80,6 +82,7 @@
 
 - (void)drawInteriorWithFrame:(NSRect)cellFrame inView:(NSView *)controlView
 {
+    
 	NSFont *font = [NSFont labelFontOfSize:[NSFont labelFontSize]];
 	NSColor *color = [NSColor controlTextColor];
 	NSDictionary *attributes = @{NSFontAttributeName: font, NSForegroundColorAttributeName: color};

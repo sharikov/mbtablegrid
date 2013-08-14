@@ -51,6 +51,8 @@ NSString *MBTableGridRowDataType = @"MBTableGridRowDataType";
 - (NSString *)_headerStringForRow:(NSUInteger)rowIndex;
 - (id)_objectValueForColumn:(NSUInteger)columnIndex row:(NSUInteger)rowIndex;
 - (void)_setObjectValue:(id)value forColumn:(NSUInteger)columnIndex row:(NSUInteger)rowIndex;
+- (float)_widthForColumn:(NSUInteger)columnIndex;
+- (float)_setWidthForColumn:(NSUInteger)columnIndex;
 - (id)_backgroundColorForColumn:(NSUInteger)columnIndex row:(NSUInteger)rowIndex;
 - (BOOL)_canEditCellAtColumn:(NSUInteger)columnIndex row:(NSUInteger)rowIndex;
 @end
@@ -93,6 +95,9 @@ NSString *MBTableGridRowDataType = @"MBTableGridRowDataType";
 - (id)initWithFrame:(NSRect)frameRect
 {
 	if(self = [super initWithFrame:frameRect]) {
+        
+        columnWidths = [NSMutableDictionary dictionary];
+        
 		// Post frame changed notifications
 		[self setPostsFrameChangedNotifications:YES];
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(viewFrameDidChange:) name:NSViewFrameDidChangeNotification object:self];
@@ -106,6 +111,7 @@ NSString *MBTableGridRowDataType = @"MBTableGridRowDataType";
 		
 		// Setup the column headers
 		NSRect columnHeaderFrame = NSMakeRect(MBTableGridRowHeaderWidth, 0, frameRect.size.width-MBTableGridRowHeaderWidth, MBTableGridColumnHeaderHeight);
+
 		columnHeaderScrollView = [[NSScrollView alloc] initWithFrame:columnHeaderFrame];
 		columnHeaderView = [[MBTableGridHeaderView alloc] initWithFrame:NSMakeRect(0,0,columnHeaderFrame.size.width,columnHeaderFrame.size.height)];
 	//	[columnHeaderView setAutoresizingMask:NSViewWidthSizable];
@@ -206,6 +212,28 @@ NSString *MBTableGridRowDataType = @"MBTableGridRowDataType";
 	NSRect rowHeaderRect = NSMakeRect(0, NSMaxY(cornerRect), MBTableGridRowHeaderWidth, [self frame].size.height - MBTableGridColumnHeaderHeight);
 	[self _drawRowHeaderBackgroundInRect:rowHeaderRect];
 }
+
+#pragma mark Resize scrollview content size
+
+- (void) resizeColumnWithIndex:(NSUInteger)columnIndex withDistance:(float)distance
+{
+    
+    // Get column key
+    NSString *columnKey = [NSString stringWithFormat:@"column%lu", columnIndex];
+
+    // Set new width of column
+    float currentWidth = [columnWidths[columnKey] floatValue];
+    currentWidth += distance;
+    columnWidths[columnKey] = @(currentWidth);
+    
+    // Update views with new sizes
+    [contentView setFrameSize:NSMakeSize(NSWidth(contentView.frame) + distance, NSHeight(contentView.frame))];
+    [columnHeaderView setFrameSize:NSMakeSize(NSWidth(columnHeaderView.frame) + distance, NSHeight(columnHeaderView.frame))];
+    [contentView setNeedsDisplay:YES];
+    [columnHeaderView setNeedsDisplay:YES];
+    
+}
+
 
 - (void)registerForDraggedTypes:(NSArray *)pboardTypes
 {
@@ -343,7 +371,7 @@ NSString *MBTableGridRowDataType = @"MBTableGridRowDataType";
 	}
 	
 	// If we're already at the last row, do nothing
-	if(row >= ([self numberOfRows]-1))
+	if(row >= (_numberOfRows-1))
 		return;
 	
 	// If the Shift key was not held, move the selection
@@ -368,7 +396,7 @@ NSString *MBTableGridRowDataType = @"MBTableGridRowDataType";
 	}
 	
 	// We can't expand past the last row
-	if(stickyRowEdge == MBTableGridTopEdge && lastRow >= ([self numberOfRows]-1))
+	if(stickyRowEdge == MBTableGridTopEdge && lastRow >= (_numberOfRows-1))
 		return;
 	
 	if(stickyRowEdge == MBTableGridTopEdge) {
@@ -447,7 +475,7 @@ NSString *MBTableGridRowDataType = @"MBTableGridRowDataType";
 	}
 	
 	// If we're already at the last column, do nothing
-	if(column >= ([self numberOfColumns]-1))
+	if(column >= (_numberOfColumns-1))
 		return;
 	
 	// If the Shift key was not held, move the selection
@@ -472,7 +500,7 @@ NSString *MBTableGridRowDataType = @"MBTableGridRowDataType";
 	}
 	
 	// We can't expand past the last column
-	if(stickyColumnEdge == MBTableGridLeftEdge && lastColumn >= ([self numberOfColumns]-1))
+	if(stickyColumnEdge == MBTableGridLeftEdge && lastColumn >= (_numberOfColumns-1))
 		return;
 	
 	if(stickyColumnEdge == MBTableGridLeftEdge) {
@@ -490,8 +518,8 @@ NSString *MBTableGridRowDataType = @"MBTableGridRowDataType";
 	stickyColumnEdge = MBTableGridLeftEdge;
 	stickyRowEdge = MBTableGridTopEdge;
 	
-	self.selectedColumnIndexes = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, [self numberOfColumns])];
-	self.selectedRowIndexes = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, [self numberOfRows])];
+	self.selectedColumnIndexes = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, _numberOfColumns)];
+	self.selectedRowIndexes = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, _numberOfRows)];
 }
 
 - (void)deleteBackward:(id)sender
@@ -801,31 +829,37 @@ NSString *MBTableGridRowDataType = @"MBTableGridRowDataType";
 
 #pragma mark Dimensions
 
-- (NSUInteger)numberOfRows
-{
-	// Ask the data source
-	if([[self dataSource] respondsToSelector:@selector(numberOfRowsInTableGrid:)]) {
-		return [[self dataSource] numberOfRowsInTableGrid:self];
-	}
-	return 0;
-}
-
-- (NSUInteger)numberOfColumns
-{
-	// Ask the data source
-	if([[self dataSource] respondsToSelector:@selector(numberOfColumnsInTableGrid:)]) {
-		return [[self dataSource] numberOfColumnsInTableGrid:self];
-	}
-	return 0;
-}
 
 #pragma mark Reloading the Grid
 
 - (void)reloadData
 {
+
+    // Set number of columns
+    if([[self dataSource] respondsToSelector:@selector(numberOfColumnsInTableGrid:)]) {
+        
+		_numberOfColumns =  [[self dataSource] numberOfColumnsInTableGrid:self];
+        
+    } else {
+        
+        _numberOfColumns = 0;
+        
+    }
+    
+    // Set number of rows
+    if([[self dataSource] respondsToSelector:@selector(numberOfRowsInTableGrid:)]) {
+        
+		_numberOfRows =  [[self dataSource] numberOfRowsInTableGrid:self];
+        
+	} else {
+        
+        _numberOfRows = 0;
+        
+    }
+    
 	// Update the content view's size
-	NSUInteger lastColumn = [self numberOfColumns]-1;
-	NSUInteger lastRow = [self numberOfRows]-1;
+	NSUInteger lastColumn = _numberOfColumns-1;
+	NSUInteger lastRow = _numberOfRows-1;
 	NSRect bottomRightCellFrame = [contentView frameOfCellAtColumn:lastColumn row:lastRow];
 	
 	NSRect contentRect = NSMakeRect([contentView frame].origin.x, [contentView frame].origin.y, NSMaxX(bottomRightCellFrame), NSMaxY(bottomRightCellFrame));
@@ -902,7 +936,7 @@ NSString *MBTableGridRowDataType = @"MBTableGridRowDataType";
 - (NSInteger)columnAtPoint:(NSPoint)aPoint
 {
 	NSInteger column = 0;
-	while(column < [self numberOfColumns]) {
+	while(column < _numberOfColumns) {
 		NSRect columnFrame = [self rectOfColumn:column];
 		if(NSPointInRect(aPoint, columnFrame)) {
 			return column;
@@ -915,7 +949,7 @@ NSString *MBTableGridRowDataType = @"MBTableGridRowDataType";
 - (NSInteger)rowAtPoint:(NSPoint)aPoint
 {
 	NSInteger row = 0;
-	while(row < [self numberOfRows]) {
+	while(row < _numberOfRows) {
 		NSRect rowFrame = [self rectOfRow:row];
 		if(NSPointInRect(aPoint, rowFrame)) {
 			return row;
@@ -1177,6 +1211,35 @@ NSString *MBTableGridRowDataType = @"MBTableGridRowDataType";
 	}
 }
 
+- (float)_widthForColumn:(NSUInteger)columnIndex
+{
+    
+    NSString *column = [NSString stringWithFormat:@"column%lu", columnIndex];
+    if (columnIndex < columnWidths.count) {
+        return [columnWidths[column] floatValue];
+    } else {
+        return [self _setWidthForColumn:columnIndex];
+    }
+    
+}
+
+- (float)_setWidthForColumn:(NSUInteger)columnIndex
+{
+    
+    if ([[self dataSource] respondsToSelector:@selector(tableGrid:setWidthForColumn:)]) {
+        
+        NSString *column = [NSString stringWithFormat:@"column%lu", columnIndex];
+
+        float width = [[self dataSource] tableGrid:self setWidthForColumn:columnIndex];
+        columnWidths[column] = COLUMNFLOATSIZE(width);
+    
+        return width;
+        
+    } else {
+        return MBTableGridColumnHeaderWidth;
+    }
+    
+}
 - (BOOL)_canEditCellAtColumn:(NSUInteger)columnIndex row:(NSUInteger)rowIndex
 {
 	// Can't edit if the data source doesn't implement the method
@@ -1284,7 +1347,11 @@ NSString *MBTableGridRowDataType = @"MBTableGridRowDataType";
 	// Create the translucent drag image
 	NSImage *finalImage = [[NSImage alloc] initWithSize:[opaqueImage size]];
 	[finalImage lockFocus];
-	[opaqueImage compositeToPoint:NSZeroPoint operation:NSCompositeCopy fraction:0.7];
+#if MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_8
+    [opaqueImage compositeToPoint:NSZeroPoint operation:NSCompositeCopy fraction:0.7];
+#else
+    [opaqueImage drawAtPoint:NSZeroPoint fromRect:NSZeroRect operation:NSCompositeCopy fraction:0.7];
+#endif
 	[finalImage unlockFocus];
 	
 	return finalImage;
@@ -1305,7 +1372,11 @@ NSString *MBTableGridRowDataType = @"MBTableGridRowDataType";
 	// Create the translucent drag image
 	NSImage *finalImage = [[NSImage alloc] initWithSize:[opaqueImage size]];
 	[finalImage lockFocus];
-	[opaqueImage compositeToPoint:NSZeroPoint operation:NSCompositeCopy fraction:0.7];
+#if MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_8
+    [opaqueImage compositeToPoint:NSZeroPoint operation:NSCompositeCopy fraction:0.7];
+#else
+    [opaqueImage drawAtPoint:NSZeroPoint fromRect:NSZeroRect operation:NSCompositeCopy fraction:0.7];
+#endif
 	[finalImage unlockFocus];
 	
 	return finalImage;
