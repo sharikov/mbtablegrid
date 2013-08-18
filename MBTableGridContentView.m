@@ -135,7 +135,7 @@
 		while (row <= lastRow) {
 			NSRect cellFrame = [self frameOfCellAtColumn:column row:row];
 			// Only draw the cell if we need to
-			if ([self needsToDrawRect:cellFrame]) {
+			if ([self needsToDrawRect:cellFrame] && !(row == editedRow && column == editedColumn)) {
                 
                 NSColor *backgroundColor = [[self tableGrid] _backgroundColorForColumn:column row:row] ?: [NSColor whiteColor];
                 
