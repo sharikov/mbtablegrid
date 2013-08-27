@@ -84,7 +84,7 @@
 		isDraggingColumnOrRow = NO;
 		
 		_cell = [[MBTableGridCell alloc] initTextCell:@""];
-		[_cell setBezeled:YES];
+        [_cell setBordered:YES];
 		[_cell setScrollable:YES];
 		[_cell setLineBreakMode:NSLineBreakByTruncatingTail];
 	}
