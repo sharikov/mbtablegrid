@@ -32,6 +32,7 @@
 #pragma mark -
 #pragma mark Constant Definitions
 NSString *MBTableGridDidChangeSelectionNotification		= @"MBTableGridDidChangeSelectionNotification";
+NSString *MBTableGridDidMakeSingleSelectionNotification	= @"MBTableGridDidMakeSingleSelectionNotification";
 NSString *MBTableGridDidMoveColumnsNotification			= @"MBTableGridDidMoveColumnsNotification";
 NSString *MBTableGridDidMoveRowsNotification			= @"MBTableGridDidMoveRowsNotification";
 
@@ -1026,6 +1027,7 @@ NSString *MBTableGridRowDataType = @"MBTableGridRowDataType";
 	if (delegate) {
 		// Unregister the delegate for relavent notifications
 		[[NSNotificationCenter defaultCenter] removeObserver:delegate name:MBTableGridDidChangeSelectionNotification object:self];
+        [[NSNotificationCenter defaultCenter] removeObserver:delegate name:MBTableGridDidMakeSingleSelectionNotification object:self];
 		[[NSNotificationCenter defaultCenter] removeObserver:delegate name:MBTableGridDidMoveColumnsNotification object:self];
 		[[NSNotificationCenter defaultCenter] removeObserver:delegate name:MBTableGridDidMoveRowsNotification object:self];
 	}
@@ -1035,6 +1037,9 @@ NSString *MBTableGridRowDataType = @"MBTableGridRowDataType";
 	// Register the new delegate for relavent notifications
 	if ([delegate respondsToSelector:@selector(tableGridDidChangeSelection:)]) {
 		[[NSNotificationCenter defaultCenter] addObserver:delegate selector:@selector(tableGridDidChangeSelection:) name:MBTableGridDidChangeSelectionNotification object:self];
+	}
+    if ([delegate respondsToSelector:@selector(tableGridDidMakeSingleSelection:)]) {
+		[[NSNotificationCenter defaultCenter] addObserver:delegate selector:@selector(tableGridDidMakeSingleSelection:) name:MBTableGridDidMakeSingleSelectionNotification object:self];
 	}
 	if ([delegate respondsToSelector:@selector(tableGridDidMoveColumns:)]) {
 		[[NSNotificationCenter defaultCenter] addObserver:delegate selector:@selector(tableGridDidMoveColumns:) name:MBTableGridDidMoveColumnsNotification object:self];

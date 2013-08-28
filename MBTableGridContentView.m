@@ -321,12 +321,14 @@
 			[[self tableGrid] _setStickyColumn:MBTableGridLeftEdge row:MBTableGridTopEdge];
 		}
         
-        [self setNeedsDisplay:YES];
-        
+         [self setNeedsDisplay:YES];
+      
 	} else if([theEvent clickCount] == 2) {
 		// Double click
 		[self editSelectedCell:self];
+
         [self setNeedsDisplay:YES];
+
 	}
 }
 
@@ -385,7 +387,14 @@
 {
 	[autoscrollTimer invalidate];
 	autoscrollTimer = nil;
-	
+    
+    if([theEvent clickCount] == 1) {
+        
+        // Post notification for single selection
+        [[NSNotificationCenter defaultCenter] postNotificationName:MBTableGridDidMakeSingleSelectionNotification object:[self tableGrid]];
+                
+	}
+    
 	mouseDownColumn = NSNotFound;
 	mouseDownRow = NSNotFound;
 }

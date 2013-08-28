@@ -42,6 +42,7 @@
  *				response to this notification should be especially efficient.
  */
 APPKIT_EXTERN NSString *MBTableGridDidChangeSelectionNotification;
+APPKIT_EXTERN NSString *MBTableGridDidMakeSingleSelectionNotification;
 
 /**
  * @brief		Posted after one or more columns are moved by user action
@@ -936,6 +937,7 @@ typedef enum {
  */
 - (void)tableGridDidChangeSelection:(NSNotification *)aNotification;
 
+- (void)tableGridDidMakeSingleSelection:(NSNotification *)aNotification;
 /**
  * @}
  */
